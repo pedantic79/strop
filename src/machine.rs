@@ -1,5 +1,6 @@
+use nohash_hasher::NoHashHasher;
 use rand::seq::SliceRandom;
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::BuildHasherDefault};
 extern crate rand;
 
 #[derive(Clone, Copy)]
@@ -209,13 +210,7 @@ impl Instruction {
             }
             AddressingMode::Accumulator => m.accumulator,
             AddressingMode::Immediate(constant) => Some(constant),
-            AddressingMode::Absolute(address) => {
-                if let Some(x) = m.heap.get(&address) {
-                    *x
-                } else {
-                    None
-                }
-            }
+            AddressingMode::Absolute(address) => m.heap.get(&address).copied()?,
         }
     }
 
@@ -462,7 +457,7 @@ pub struct State {
     decimal: Option<bool>,
     overflow: Option<bool>,
     halfcarry: Option<bool>,
-    heap: HashMap<u16, Option<i8>>,
+    heap: HashMap<u16, Option<i8>, BuildHasherDefault<NoHashHasher<u16>>>,
 }
 
 impl State {
@@ -478,7 +473,7 @@ impl State {
             decimal: None,
             overflow: None,
             halfcarry: None,
-            heap: HashMap::new(),
+            heap: HashMap::with_hasher(BuildHasherDefault::default()),
         }
     }
 }

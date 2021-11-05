@@ -8,6 +8,10 @@ edition = "2018"
 
 [dependencies]
 argh = "0.1.4"
-rand = "0.7.3"
+rand = "0.8.4"
 enum-utils = "0.1.2"
 yaml-rust = "0.4"
+nohash-hasher = "*"
+
+# [profile.release]
+# debug = true
