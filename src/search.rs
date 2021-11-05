@@ -23,7 +23,7 @@ fn run_program(prog: &Vec<Instruction>, schema: &Schema, inputs: &Vec<i8>) -> Op
     }
     if prog
         .iter()
-        .fold(true, |valid: bool, i| valid && (i.operation)(i, &mut s))
+        .all(|i| (i.operation)(i, &mut s))
     {
         Some(s)
     } else {
@@ -48,7 +48,7 @@ pub fn equivalence(
             return false;
         }
     }
-    return true;
+    true
 }
 
 pub fn exhaustive_search(
@@ -70,15 +70,15 @@ pub fn exhaustive_search(
         len: u32,
     ) -> bool {
         if len == 0 {
-            return term(&prog);
+            term(&prog)
         } else {
             for ins in instrs {
                 let p = prog.iter().cloned().chain(vec![*ins]).collect();
-                if try_all(term, p, &instrs, len - 1) {
+                if try_all(term, p, instrs, len - 1) {
                     return true;
                 }
             }
-            return false;
+            false
         }
     }
 

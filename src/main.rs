@@ -172,11 +172,11 @@ fn function(m: String) -> Vec<(Vec<i8>, Vec<i8>)> {
         }
         return test_cases;
     }
-    if m[0..4] == "mult".to_string() {
+    if m[0..4] == *"mult" {
         let arg = m[4..].to_string();
         let a = arg.parse::<i8>();
 
-        if let Some(f) = a.ok() {
+        if let Ok(f) = a {
             for n in -128_i8..=127 {
                 if let Some(res) = n.checked_mul(f) {
                     test_cases.push((vec![n], vec![res]));
@@ -187,11 +187,11 @@ fn function(m: String) -> Vec<(Vec<i8>, Vec<i8>)> {
             println!("Can't multiply by {}", arg);
         }
     }
-    if m[0..4] == "idiv".to_string() {
+    if m[0..4] == *"idiv" {
         let arg = m[4..].to_string();
         let a = arg.parse::<i8>();
 
-        if let Some(f) = a.ok() {
+        if let Ok(f) = a {
             for n in 0..=127 {
                 test_cases.push((vec![n], vec![n / f]));
             }
@@ -200,11 +200,11 @@ fn function(m: String) -> Vec<(Vec<i8>, Vec<i8>)> {
             println!("Can't divide by {}", arg);
         }
     }
-    if m[0..3] == "add".to_string() {
+    if m[0..3] == *"add" {
         let arg = m[3..].to_string();
         let a = arg.parse::<i8>();
 
-        if let Some(f) = a.ok() {
+        if let Ok(f) = a {
             for n in -128_i8..=127 {
                 if let Some(res) = n.checked_add(f) {
                     test_cases.push((vec![n], vec![res]));
@@ -271,11 +271,11 @@ fn main() {
     let schema = Schema::new(
         opts.live_in
             .into_iter()
-            .map(|arg| parse_live_in(arg))
+            .map(parse_live_in)
             .collect(),
         opts.live_out
             .into_iter()
-            .map(|arg| parse_live_out(arg))
+            .map(parse_live_out)
             .collect(),
     );
 

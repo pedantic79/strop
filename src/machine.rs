@@ -33,13 +33,9 @@ pub fn add_to_reg8(
     if let Some(v) = a {
         if let Some(r) = reg {
             let result = r.wrapping_add(v);
-            let z = if result == 0 { true } else { false };
-            let c = if r.checked_add(v).is_none() {
-                true
-            } else {
-                false
-            };
-            let n = if result < 0 { true } else { false };
+            let z = result == 0;
+            let c = r.checked_add(v).is_none();
+            let n = result < 0;
             let o = (r < 0 && v < 0 && result >= 0) || (r > 0 && v > 0 && result <= 0);
             let h = ((r ^ v ^ result) & 0x10) == 0x10;
             (Some(result), Some(c), Some(z), Some(n), Some(o), Some(h))
@@ -60,23 +56,17 @@ fn decimal_adjust(
         if val & 0x0f > 0x09 {
             return Some(0x06);
         }
-        if flag.is_none() {
-            return None;
-        }
+        flag?;
         if flag.unwrap_or(false) {
             return Some(0x06);
         }
-        return Some(0);
+        Some(0)
     }
 
     if let Some(a) = accumulator {
         if let Some(right) = nybble(a, halfcarry) {
             let ar = a + right;
-            if let Some(left) = nybble(ar >> 4, carry) {
-                Some(ar + (left << 4))
-            } else {
-                None
-            }
+            nybble(ar >> 4, carry).map(|left| ar + (left << 4))
         } else {
             None
         }
@@ -203,7 +193,7 @@ impl Instruction {
                 vec![*self]
             }
             AddressingMode::Immediate(_) => (*constants
-                .into_iter()
+                .iter()
                 .map(|c| Instruction {
                     opname: self.opname,
                     operation: self.operation,
@@ -213,7 +203,7 @@ impl Instruction {
                 .collect::<Vec<Instruction>>())
             .to_vec(),
             AddressingMode::Absolute(_) => (*vars
-                .into_iter()
+                .iter()
                 .map(|c| Instruction {
                     opname: self.opname,
                     operation: self.operation,
