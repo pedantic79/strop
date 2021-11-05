@@ -248,7 +248,7 @@ fn parse_live_out<'a>(arg: String) -> Box<dyn for<'r> Fn(&'r State) -> Option<i8
     process::exit(1);
 }
 
-fn disassemble(prog: &Vec<Instruction>) {
+fn disassemble(prog: &[Instruction]) {
     for p in prog {
         println!("{}", p);
     }
@@ -269,20 +269,14 @@ fn constants(c: Vec<i8>) -> Vec<i8> {
 fn main() {
     let opts: Opts = argh::from_env();
     let schema = Schema::new(
-        opts.live_in
-            .into_iter()
-            .map(parse_live_in)
-            .collect(),
-        opts.live_out
-            .into_iter()
-            .map(parse_live_out)
-            .collect(),
+        opts.live_in.into_iter().map(parse_live_in).collect(),
+        opts.live_out.into_iter().map(parse_live_out).collect(),
     );
 
     let test_cases = function(opts.function);
 
     if opts.search == "exh" {
-        let found_it = |prog: &Vec<Instruction>| {
+        let found_it = |prog: &[Instruction]| {
             if equivalence(prog, &schema, &test_cases) {
                 disassemble(prog);
                 true

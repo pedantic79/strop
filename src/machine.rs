@@ -184,7 +184,7 @@ impl Instruction {
         }
     }
 
-    pub fn vectorize(&self, constants: &Vec<i8>, vars: &Vec<u16>) -> Vec<Instruction> {
+    pub fn vectorize(&self, constants: &[i8], vars: &[u16]) -> Vec<Instruction> {
         match self.src {
             AddressingMode::Implicit => {
                 vec![*self]

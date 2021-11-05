@@ -15,16 +15,13 @@ impl<'a> Schema<'_> {
     }
 }
 
-fn run_program(prog: &Vec<Instruction>, schema: &Schema, inputs: &Vec<i8>) -> Option<State> {
+fn run_program(prog: &[Instruction], schema: &Schema, inputs: &[i8]) -> Option<State> {
     let mut s = State::new();
 
     for (func, val) in schema.live_in.iter().zip(inputs) {
         (func)(&mut s, *val);
     }
-    if prog
-        .iter()
-        .all(|i| (i.operation)(i, &mut s))
-    {
+    if prog.iter().all(|i| (i.operation)(i, &mut s)) {
         Some(s)
     } else {
         None
@@ -32,9 +29,9 @@ fn run_program(prog: &Vec<Instruction>, schema: &Schema, inputs: &Vec<i8>) -> Op
 }
 
 pub fn equivalence(
-    prog: &Vec<Instruction>,
+    prog: &[Instruction],
     schema: &Schema,
-    test_cases: &Vec<(Vec<i8>, Vec<i8>)>,
+    test_cases: &[(Vec<i8>, Vec<i8>)],
 ) -> bool {
     for tc in test_cases {
         if let Some(state) = run_program(prog, schema, &tc.0) {
@@ -52,7 +49,7 @@ pub fn equivalence(
 }
 
 pub fn exhaustive_search(
-    found_it: &dyn Fn(&Vec<Instruction>) -> bool,
+    found_it: &dyn Fn(&[Instruction]) -> bool,
     instructions: Vec<Instruction>,
     constants: Vec<i8>,
     vars: Vec<u16>,
@@ -61,12 +58,12 @@ pub fn exhaustive_search(
         .iter()
         .map(|i| i.vectorize(&constants, &vars))
         .flatten()
-        .collect();
+        .collect::<Vec<_>>();
 
     fn try_all(
-        term: &dyn Fn(&Vec<Instruction>) -> bool,
+        term: &dyn Fn(&[Instruction]) -> bool,
         prog: Vec<Instruction>,
-        instrs: &Vec<Instruction>,
+        instrs: &[Instruction],
         len: u32,
     ) -> bool {
         if len == 0 {
@@ -82,7 +79,7 @@ pub fn exhaustive_search(
         }
     }
 
-    let t: &dyn Fn(&Vec<Instruction>) -> bool = &|v| -> bool { found_it(v) };
+    let t: &dyn Fn(&[Instruction]) -> bool = &|v| -> bool { found_it(v) };
 
     for i in 1..10 {
         println!("Trying programs of length {}.", i);
