@@ -54,11 +54,13 @@ pub fn exhaustive_search(
     constants: Vec<i8>,
     vars: Vec<u16>,
 ) {
-    let instrs = instructions
-        .iter()
-        .map(|i| i.vectorize(&constants, &vars))
-        .flatten()
-        .collect::<Vec<_>>();
+    let instrs = {
+        let mut temp = Vec::new();
+        for ins in &instructions {
+            ins.vectorize(&mut temp, &constants, &vars);
+        }
+        temp
+    };
 
     fn try_all(
         term: &dyn Fn(&[Instruction]) -> bool,

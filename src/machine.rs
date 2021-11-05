@@ -184,34 +184,21 @@ impl Instruction {
         }
     }
 
-    pub fn vectorize(&self, constants: &[i8], vars: &[u16]) -> Vec<Instruction> {
+    pub fn vectorize(&self, prog: &mut Vec<Instruction>, constants: &[i8], vars: &[u16]) {
         match self.src {
-            AddressingMode::Implicit => {
-                vec![*self]
-            }
-            AddressingMode::Accumulator => {
-                vec![*self]
-            }
-            AddressingMode::Immediate(_) => (*constants
-                .iter()
-                .map(|c| Instruction {
-                    opname: self.opname,
-                    operation: self.operation,
-                    src: AddressingMode::Immediate(*c),
-                    dst: AddressingMode::Immediate(*c),
-                })
-                .collect::<Vec<Instruction>>())
-            .to_vec(),
-            AddressingMode::Absolute(_) => (*vars
-                .iter()
-                .map(|c| Instruction {
-                    opname: self.opname,
-                    operation: self.operation,
-                    src: AddressingMode::Absolute(*c),
-                    dst: AddressingMode::Absolute(*c),
-                })
-                .collect::<Vec<Instruction>>())
-            .to_vec(),
+            AddressingMode::Implicit | AddressingMode::Accumulator => prog.push(*self),
+            AddressingMode::Immediate(_) => prog.extend(constants.iter().map(|c| Instruction {
+                opname: self.opname,
+                operation: self.operation,
+                src: AddressingMode::Immediate(*c),
+                dst: AddressingMode::Immediate(*c),
+            })),
+            AddressingMode::Absolute(_) => prog.extend(vars.iter().map(|c| Instruction {
+                opname: self.opname,
+                operation: self.operation,
+                src: AddressingMode::Absolute(*c),
+                dst: AddressingMode::Absolute(*c),
+            })),
         }
     }
 
