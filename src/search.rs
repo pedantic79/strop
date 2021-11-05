@@ -62,18 +62,19 @@ pub fn exhaustive_search(
 
     fn try_all(
         term: &dyn Fn(&[Instruction]) -> bool,
-        prog: Vec<Instruction>,
+        prog: &mut Vec<Instruction>,
         instrs: &[Instruction],
         len: u32,
     ) -> bool {
         if len == 0 {
-            term(&prog)
+            term(prog)
         } else {
             for ins in instrs {
-                let p = prog.iter().cloned().chain(vec![*ins]).collect();
-                if try_all(term, p, instrs, len - 1) {
+                prog.push(*ins);
+                if try_all(term, prog, instrs, len - 1) {
                     return true;
                 }
+                prog.pop();
             }
             false
         }
@@ -83,7 +84,7 @@ pub fn exhaustive_search(
 
     for i in 1..10 {
         println!("Trying programs of length {}.", i);
-        if try_all(&t, Vec::new(), &instrs, i) {
+        if try_all(&t, &mut Vec::new(), &instrs, i) {
             return;
         }
     }
